@@ -41,7 +41,6 @@
 *.tds
 *.dcu
 *.lib
-*.a
 *.o
 *.ocx
 
