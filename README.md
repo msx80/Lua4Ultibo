@@ -5,4 +5,6 @@ Just include luaheaders.pas and put liblua.a in your library search path and it 
 
 The example includes calling a pascal procedure with or without parameters.
 
-The headers are incomplete, i only ported the main api calls and what i needed, but it's easy to expand. Tested only with Raspberry Pi Zero, but should work with others too.
+The headers are incomplete, i only ported the main api calls and what i needed, but it's easy to expand. 
+
+The sources include version for Raspberry Pi 2 and Raspberry Pi Zero
