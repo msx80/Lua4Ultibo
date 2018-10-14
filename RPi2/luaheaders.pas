@@ -13,6 +13,9 @@ PATH=$PATH:/home/you/gcc-arm-none-eabi-5_3-2016q1/bin/
 Copy the makefile in the lua "src" folder and run:
 
 make -f makefile.ultibo.armv7 a
+ok for rpiZ
+make -f makefile.ultibo.armv6 a
+
 
 }
 
@@ -51,15 +54,17 @@ type Plua_State = pointer;
 
 // macros
 
-procedure lua_pushcfunction (luaState: Plua_State; fn:Plua_CFunction);
-function luaL_loadfile(luaState: Plua_State; filename: PChar): cint;
-function lua_pcall(luaState: Plua_State; nargs, nresults, errfunc: cint): cint;
-procedure lua_register(luaState: Plua_State; name:PChar; fn:Plua_CFunction);
-procedure lua_call(luaState: Plua_State; nargs:cint32;  nresults: cint32);
-function lua_tointeger(luaState: Plua_State; idx:cint):lua_Integer;
-function lua_tonumber(luaState: Plua_State; idx:cint):lua_Number;
-function lua_getextraspace(luaState: Plua_State):pointer;
-function lua_tostring(luaState: Plua_State; idx:cint):pchar;
+procedure lua_pushcfunction (luaState: Plua_State; fn:Plua_CFunction);inline;
+function luaL_loadfile(luaState: Plua_State; filename: PChar): cint;inline;
+function lua_pcall(luaState: Plua_State; nargs, nresults, errfunc: cint): cint;inline;
+procedure lua_register(luaState: Plua_State; name:PChar; fn:Plua_CFunction);inline;
+procedure lua_call(luaState: Plua_State; nargs:cint32;  nresults: cint32);inline;
+function lua_tointeger(luaState: Plua_State; idx:cint):lua_Integer;inline;
+function lua_tonumber(luaState: Plua_State; idx:cint):lua_Number;inline;
+function lua_getextraspace(luaState: Plua_State):pointer;inline;
+function lua_tostring(luaState: Plua_State; idx:cint):pchar;inline;
+procedure lua_newtable(luaState: Plua_State);inline;
+procedure lua_pop(luaState: Plua_State; n:cint);inline;
 
 // actual api
 function luaL_newstate(): Plua_State; cdecl; external LUALIB;
@@ -74,6 +79,8 @@ procedure lua_callk(luaState: Plua_State; nargs:cint;  nresults: cint; ctx:Plua_
 procedure lua_pushnil(luaState: Plua_State); cdecl; external LUALIB;
 procedure lua_pushnumber(luaState: Plua_State; n:lua_Number); cdecl; external LUALIB;
 procedure lua_pushinteger(luaState: Plua_State; n: lua_Integer); cdecl; external LUALIB;
+function lua_pushstring (luaState: Plua_State; s:Pchar):pchar; cdecl; external LUALIB;
+function lua_pushlstring  (luaState: Plua_State; s:Pchar; len:csize_t):pchar; cdecl; external LUALIB;
 procedure lua_pushboolean(luaState: Plua_State; n: cint); cdecl; external LUALIB;
 function  lua_tonumberx (luaState: Plua_State; idx:cint; pisnum:pcint):lua_Number; cdecl; external LUALIB;
 function lua_tointegerx (luaState: Plua_State; idx:cint; pisnum:pcint):lua_Integer; cdecl; external LUALIB;
@@ -82,8 +89,32 @@ function lua_tolstring (luaState: Plua_State; idx:cint; len:pcsize_t):pchar; cde
 function lua_getglobal(luaState: Plua_State; name:pchar):cint; cdecl; external LUALIB;
 function lua_isnumber (luaState: Plua_State; idx:cint):cint; cdecl; external LUALIB;
 procedure lua_close (luaState: Plua_State); cdecl; external LUALIB;
+procedure lua_createtable (luaState: Plua_State; narray, nrec:cint); external LUALIB;
+procedure lua_settable (luaState: Plua_State; idx:cint); external LUALIB;
+procedure lua_seti (luaState: Plua_State; idx:cint; n:lua_Integer); external LUALIB;
+procedure lua_setfield (luaState: Plua_State; idx:cint; k:pchar); external LUALIB;
+function lua_getfield(luaState: Plua_State; idx:cint; k:pchar):cint; external LUALIB;
+function lua_geti(luaState: Plua_State; idx:cint; n:lua_Integer):cint; external LUALIB;
+procedure lua_settop(luaState: Plua_State; idx:cint); external LUALIB;
 
 implementation
+
+(*
+#define lua_pop(L,n)            lua_settop(L, -(n)-1)
+*)
+procedure lua_pop(luaState: Plua_State; n:cint);
+begin
+  lua_settop(luaState, -(n)-1);
+end;
+
+(*
+#define lua_newtable(L)         lua_createtable(L, 0, 0)
+*)
+
+procedure lua_newtable(luaState: Plua_State);
+begin
+  lua_createtable(luaState, 0, 0)
+end;
 
 (*
 #define lua_getextraspace(L)    ((void * )((char * )(L) - LUA_EXTRASPACE))
